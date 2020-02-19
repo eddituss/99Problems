@@ -97,6 +97,8 @@
 
 (define encode-direct-aux
   (lambda (l elem cant)
-    (cond ((null? l) (list elem cant))
-          ((
+    (cond ((null? l) (list (list cant elem)))
+          ((equal? (car l) elem) (encode-direct-aux (cdr l) elem (+ cant 1)))
+          ((= cant 1) (cons elem (encode-direct-aux (cdr l) (car l)  1)))
+          (else (cons (list cant elem) (encode-direct-aux (cdr l) (car l)  1))))))
           
