@@ -101,4 +101,72 @@
           ((equal? (car l) elem) (encode-direct-aux (cdr l) elem (+ cant 1)))
           ((= cant 1) (cons elem (encode-direct-aux (cdr l) (car l)  1)))
           (else (cons (list cant elem) (encode-direct-aux (cdr l) (car l)  1))))))
+
+;; p14
+(define dupli
+  (lambda (l)
+    (cond ((null? l) l)
+          (else (append (repeat 2 (car l))
+                        (dupli (cdr l)))))))
+
+;; p15
+(define repli
+  (lambda (l cant)
+    (cond ((null? l) l)
+          (else (append (repeat cant (car l))
+                        (repli (cdr l) cant))))))
+
+;; p16
+(define drop-n
+  (lambda (l n)
+    (drop-n-aux l n 1)))
+
+(define drop-n-aux
+  (lambda (l n cant)
+    (cond ((null? l) l)
+          ((zero? (remainder cant n)) (drop-n-aux (cdr l) n 1))
+          (else (cons (car l) (drop-n-aux (cdr l) n (+ cant 1)))))))
+
+;; p17
+(define split
+  (lambda (l part)
+    (split-aux l part '())))
+
+(define split-aux
+  (lambda (l part first)
+    (cond ((null? l) (list (reverse first) '()))
+          ((zero? part) (list (reverse first) l))
+          (else (split-aux (cdr l) (- part 1) (cons (car l) first))))))
+
+;; p18
+(define first-n
+  (lambda (l k)
+    (cond ((null? l) '())
+          ((zero? k) '())
+          (else (cons (car l) (first-n (cdr l) (- k 1)))))))
+
+(define slice
+  (lambda (l begin end)
+    (cond ((null? l) l)
+          ((zero? begin) (first-n l (+ 1 end)))
+          (else (slice (cdr l) (- begin 1) (- end 1))))))
+
+;; p19
+(define mod   ;; returns a(b)
+  (lambda (a b)
+    (remainder (+ b (remainder a b)) b)))
+
+(define rotate
+  (lambda (l rot)
+    (rotate-aux l (mod rot (length l)))))
+
+(define rotate-aux
+  (lambda (l mod-rot)
+    (rotate-aux2 (split l mod-rot))))
+
+(define rotate-aux2
+  (lambda (splitted)
+    (append (cadr splitted) (car splitted))))
+          
+                                                    
           
