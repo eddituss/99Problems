@@ -2,6 +2,12 @@
 ;; All solutions assume that the domain is correct, there are no entry-validations
 ;; Check specification on github.com/eddituss/99Problems
 
+;; For a quick search of an specific solution you may find ;; pxx  where xx is the problem's number
+
+;; File made for academic purposes, for teaching syntax to university students or general public
+;; For more information you may contact the author Eddy Ramírez at edramirez@tec.ac.cr
+
+
 ;; Domain:   An element and a list
 ;; Codomain: A boolean, #t if the element is member of the list, #f otherwise
 ;; General purpose functions
