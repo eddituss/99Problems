@@ -329,7 +329,33 @@
            (map (lambda (x)  (place-in  x (group-aux (difference l x) (cdr groups))))
                 (combination (car groups) l))))))
 
+;; p28
+;; Domain: A list of lists (length-i list-i), a number p, a sublist of length less than p, a sublist of the rest
+;; Codomain: Two lists into a list, one with minors, the other with the rest
+(define sort-split
+  (lambda (len-list piv minor greater)
+    (cond ((null? len-list)(list minor greater))
+          ((< (caar len-list) piv) (sort-split (cdr len-list) piv (cons (car len-list) minor) greater))
+          (else (sort-split (cdr len-list) piv minor (cons (car len-list)  greater))))))
 
+;; Domain:  A list of lists in the form (length-i list-i)
+;; Codomain: A sorted lists of length-i based
+;; Using quick-sort
+(define lsort-aux
+  (lambda (len-list)
+    (cond ((null? len-list) '())
+          (else
+           (let ((parti (sort-split (cdr len-list) (caar len-list) '() '())))
+             (append
+              (lsort-aux (car parti))
+              (list (car len-list))
+              (lsort-aux (cadr parti))))))))
+
+;; Domain: A lists of lists
+;; Codomain: The lists of lists sorted by the lists' length
+(define lsort
+  (lambda (ll)
+    (map cadr (lsort-aux (map (lambda (l) (list (length l) l)) ll)))))
 
 
 
