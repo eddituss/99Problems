@@ -415,6 +415,8 @@
 
 
 ;; p35
+;; Domain: A natural number greater than 1
+;; Codomain: The list of the prime factors of n
 (define prime-factors
   (lambda (n)
     (cond ((even? n) (cons 2 (prime-factors (/ n 2))))
@@ -428,22 +430,91 @@
           (else (prime-factors-aux n (+ 2 i))))))
 
 ;; p36
+;; Domain: A natural number greater than 1
+;; Codomain: The list of ((a1 b1) (a2 b2) ...) that n = a1**b1* a2**b2 * ...
 (define prime-factors-mult
   (lambda (n)
     (map (lambda (l) (list (car l) (length l))) (pack (prime-factors n)))))
 
 ;; p37
+;; Domain: A natural number
+;; Codomain: Euler totient of the number (efficient)
 (define euler-totient
   (lambda (n)
     (apply * (map (lambda (par) (* (- (car par) 1) (expt (car par) (- (cadr par) 1))))
                   (prime-factors-mult n)))))
 
 ;; p38
-
-;; (time (phi 1200000))
-;; (time (euler-totient 1200000))
+;; Copy this code, it just measure cpu time of the algorithm
+;; (time (phi 1200000)) (time (euler-totient 1200000))
+;; (time (phi 10090)) (time (euler-totient 10090))
+;; In general:
+;;   the first has a cost of n*sqrt(n) in general
+;;   the second one log(n) for composite numbers (more frequently found) and sqrt(n) for prime numbers
 
 ;; p39
+;; Domain:  Two natural numbers a, b that a <= b
+;; Codomain: The ordered list of prime numbers between a and b
 (define prime-range
   (lambda (a b)
     (filter (range a b) prime?)))
+
+;; p40
+;; Domain: A natural even number
+;; Codomain: A list with two primes which sum is n
+(define goldbach
+  (lambda (n)
+    (cond ((= n 4) '(2 2))
+          (else (goldbach-aux n 3)))))
+
+(define goldbach-aux
+  (lambda (n p)
+    (cond ((and (prime? p) (prime? (- n p))) (list p (- n p)))
+          (else
+           (goldbach-aux n (+ p 2))))))
+
+;; p41
+;; Domain: Two natural number a,b with a<=b
+;; Codomain: The goldbach pair for every even number between beg and end
+(define goldbach-list
+  (lambda (beg end)
+    (map goldbach (filter (range beg end) even?))))
+
+;; p49
+;; Domain: A natural number greater than 1
+;; Codomain: The list of strings of n bits
+(define gray-code
+  (lambda (n)
+    (map list->string (pow-set (string->list "01") n))))
+
+
+;; Domain: A list (as a set) and a number
+;; Codomain: Set to the nth power
+(define pow-set
+  (lambda (set n)
+    (cond ((zero? n) '(()))
+          ((= n 1) (map (lambda (n) (list n)) set))
+          ((zero? (remainder n 2)) (times (pow-set set (/ n 2))
+                                          (pow-set set (/ n 2))))
+          (else
+           (times (pow-set set 1) (times (pow-set set (quotient n 2))
+                                         (pow-set set (quotient n 2))))))))
+
+;; Domain: Multiplies two sets (only when called from pow-set)
+;; Codomain: The set multiplied
+(define times
+  (lambda (s1 s2)
+    (apply append (map
+                   (lambda (x) (map
+                                (lambda (y) (append x y))
+                                s2))
+                   s1))))
+
+;; p50
+;; Domain: A multiset of frequencies
+;; Codomain: A set of huffman codes
+
+;(define huffman-codes
+ ; (lambda (lfre)
+  ;  (routes-to-leaves (huffman-tree (map
+                                     
