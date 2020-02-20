@@ -15,6 +15,13 @@
   (lambda (elem l)
     (ormap (lambda (x) (equal? x elem)) l)))
 
+(define filter
+  (lambda (l fun?)
+    (cond ((null? l) '())
+          ((fun? (car l)) (cons (car l) (filter (cdr l) fun?)))
+          (else (filter (cdr l) fun?)))))
+
+
 
 ;; Domain: A non-empty list
 ;; Codomain: The list with only the last element of the input
@@ -364,11 +371,79 @@
     (map cadr (lsort-aux (map (lambda (l) (list (length l) l)) ll)))))
 
 
+;; p31
+;; Domain: A natural number
+;; Codomain: A boolean, #t is it is prime, #f otherwise
+(define prime?
+  (lambda (n)
+    (cond ((= n 2) #t)
+          ((= n 3) #t)
+          ((= n 1) #f)
+          ((zero? (mod n 2)) #f)
+          (else (prime?-aux n 3)))))
+
+(define prime?-aux
+  (lambda (n i)
+    (cond ((zero? (remainder n i)) #f)
+          ((> (* i i) n) #t)
+          (else (prime?-aux n (+ i 2))))))
 
 
+;; p32
+;; Domain: Two natural numbers
+;; Codomain: The number that is the GCD of the input
+;; Using euclid's algorithm ¡Check for the mathemathical proof!
+(define gcd
+  (lambda (a b)
+    (cond ((zero? b) a)
+          (else (gcd b (remainder a b))))))
+
+;; p33
+;; Domain: Two natural numbers
+;; Codomain: A boolean, #t if the numbers are coprime, #f otherwise
+(define coprimes
+  (lambda (a b)
+    (= 1 (gcd a b))))
 
 
+;; p34
+;; Domain: A natural number
+;; Codomain: Euler totient of the number (innefficient)
+(define phi
+  (lambda (n)
+    (length (filter (map (lambda (i) (gcd i n)) (range 1 n)) (lambda (x) (= x 1))))))
 
 
+;; p35
+(define prime-factors
+  (lambda (n)
+    (cond ((even? n) (cons 2 (prime-factors (/ n 2))))
+          (else (prime-factors-aux n 3)))))
 
+(define prime-factors-aux
+  (lambda (n i)
+    (cond ((= 1 n) '())
+          ((< n (* i i)) (list n))
+          ((zero? (remainder n i)) (cons i (prime-factors-aux (/ n i) i)))
+          (else (prime-factors-aux n (+ 2 i))))))
 
+;; p36
+(define prime-factors-mult
+  (lambda (n)
+    (map (lambda (l) (list (car l) (length l))) (pack (prime-factors n)))))
+
+;; p37
+(define euler-totient
+  (lambda (n)
+    (apply * (map (lambda (par) (* (- (car par) 1) (expt (car par) (- (cadr par) 1))))
+                  (prime-factors-mult n)))))
+
+;; p38
+
+;; (time (phi 1200000))
+;; (time (euler-totient 1200000))
+
+;; p39
+(define prime-range
+  (lambda (a b)
+    (filter (range a b) prime?)))
