@@ -1,6 +1,6 @@
-
 ;; Solutions to 99 lisp problems in Scheme
 ;; All solutions assume that the domain is correct, there are no entry-validations
+;; Check specification on github.com/eddituss/99Problems
 
 ;; p01
 (define last
@@ -162,11 +162,107 @@
 
 (define rotate-aux
   (lambda (l mod-rot)
-    (rotate-aux2 (split l mod-rot))))
+    (reorder-and-append (split l mod-rot))))
 
-(define rotate-aux2
+(define reorder-and-append
   (lambda (splitted)
     (append (cadr splitted) (car splitted))))
           
                                                     
-          
+;; p20
+(define remove-at
+  (lambda (l k)
+    (cond ((null? l) l)
+          ((zero? k) (cdr l))
+          (else (cons (car l) (remove-at (cdr l) (- k 1)))))))
+
+;; p21
+(define insert-at
+  (lambda (l elem k)
+    (cond ((null? l) (list elem))
+          ((zero? k) (cons elem l))
+          (else (cons (car l) (insert-at (cdr l) elem (- k 1)))))))
+
+;; p22
+(define range
+  (lambda (begin end)
+    (cond ((> begin end) '())
+          (else (cons begin (range (+ begin 1) end))))))
+
+;; p23
+
+(define rnd-select
+  (lambda (l cant)
+    (rnd-select-aux l cant '() (random (length l)))))
+
+(define rnd-select-aux
+  (lambda (l cant acum pos)
+    (cond ((zero? cant) acum)
+          ((null? (cdr l)) (cons (car l) acum))
+          (else (rnd-select-aux
+                 (remove-at l pos)
+                 (- cant 1)
+                 (cons (element-at l pos) acum)
+                 (random (length (cdr l))))))))
+
+
+;; p24
+(define lotto-select
+  (lambda (cant tot)
+    (rnd-select cant (range 1 tot))))
+
+;; p25
+(define rnd-permu
+  (lambda (l)
+    (rnd-select l (length l))))
+
+;; p26
+(define combination
+  (lambda (k l)
+    (cond ((zero? k) '(()))
+          ((= k (length l)) (list l))
+          (else
+           (append (map (lambda (comb) (cons (car l) comb)) ;; using the first of the list
+                        (combination (- k 1) (cdr l)))
+                   (combination k (cdr l))))))) ;; not using the first of the list
+
+;; p27
+(define difference
+  (lambda (a b) ;; return a-b
+    (cond ((null? a) a)
+          ((member? (car a) b) (difference (cdr a) b))
+          (else (cons (car a) (difference (cdr a) b))))))
+
+
+(define place-in
+  (lambda (elem ll)
+    (cond ((null? ll) ll)
+          (else (append (map (lambda (x) (cons elem x)) (car ll))
+                        (place-in elem (cdr ll)))))))
+
+(define group
+  (lambda (l distrib)
+    (apply append (group-aux l distrib))))
+
+(define group-aux
+  (lambda (l groups)
+    (cond ((null? groups) '())
+          ((null? (cdr groups)) (list (list (combination (car groups) l))))
+          (else
+           (map (lambda (x)  (place-in  x (group-aux (difference l x) (cdr groups))))
+                (combination (car groups) l))))))
+
+
+
+
+
+
+
+
+
+
+;; General purpose functions
+(define member?
+  (lambda (elem l)
+    (ormap (lambda (x) (equal? x elem)) l)))
+
