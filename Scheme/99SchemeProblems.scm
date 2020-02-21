@@ -65,12 +65,26 @@
     (cond ((null? l) l)
           (else (append (invert (cdr l)) (list (car l)))))))
 
+;; Domain: A list
+;; Codomain: The input reversed
+;; p05  -  efficient
+(define invert-tail
+  (lambda  (l)
+    (invert-tail-aux l '())))
+
+(define invert-tail-aux
+  (lambda (l a)
+    (cond ((null? l) a)
+          (else (invert-tail-aux
+                 (cdr l)
+                 (cons (car l) a))))))
+
 ;; Domain:  A list
 ;; Codomain: A boolean, #t if it is palindrome, #f if it is not
 ;; p06
 (define palindrome?
   (lambda (l)
-    (equal? l (invert l))))
+    (equal? l (invert-tail l))))
 
 ;; Domain: A list (may be nested)
 ;; Codomain: A list with all the input's internal parenthesis "erased"
@@ -78,7 +92,8 @@
 (define flatten
   (lambda (l)
     (cond ((null? l) l)
-          ((list? (car l)) (append (flatten (car l)) (flatten (cdr l))))
+          ((list? (car l)) (append (flatten (car l))
+                                   (flatten (cdr l))))
           (else (cons (car l) (flatten (cdr l)))))))
 
 ;; Domain: A list
@@ -561,10 +576,39 @@
          (routes-to-leaves-aux tree '()))))
 
 
-(define routes-to-leaves-aux
+(define routes-to-leaves-aux  ;; Routes inverted
   (lambda (tree route)
     (cond ((leaf? tree) (list (cons (caar tree) route)))
           (else
            (append (routes-to-leaves-aux (cadr tree) (cons 1 route))
                    (routes-to-leaves-aux (caddr tree) (cons 0 route)))))))
 
+;; p54
+;; Domain: A list
+;; Codomain: A boolean #t if the input is a binary tree (in scheme), #f otherwise
+(define binary-tree?
+  (lambda (l)
+    (cond ((not (list? l)) #f)
+          ((null? l) #t)
+          ((not (= 3 (length l))) #f)
+          (else
+           (and (binary-tree? (cadr l))
+                (binary-tree? (caddr l)))))))
+
+;; P55
+(define perfect-balanced-tree
+  (lambda (n)
+    (cond ((zero? n) '())
+          (else
+           (let ((hijo (perfect-balanced-tree (- n 1))))
+             (list 'x hijo hijo))))))
+
+(define balanced-trees
+  (lambda (n)
+    (map push-sons
+         (repeat (- (expt 2 n) 1) (perfect-balanced-tree (- n 1)))
+         (cdr (gray-code n)))))
+
+
+;; TO-DO push-sons
+         
