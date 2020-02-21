@@ -513,8 +513,58 @@
 ;; p50
 ;; Domain: A multiset of frequencies
 ;; Codomain: A set of huffman codes
+;; Example of entrance '((a 15) (b 1) (c 45) (d 8) (e 16) (f 12) (g 10))
+(define huffman-codes
+  (lambda (lfre)
+    (routes-to-leaves (huffman-tree (map (lambda (x) (list x '()'())) (huff-sort  lfre))))))
 
-;(define huffman-codes
- ; (lambda (lfre)
-  ;  (routes-to-leaves (huffman-tree (map
-                                     
+
+;; Domain: A list of frequencies in the Huffman way
+;; Codomain: The list sorted from the least frequent to the most frequent
+(define huff-sort
+  (lambda (tree-list)
+    (sort tree-list (lambda (x y) (< (cadr x) (cadr y))))))
+
+;; Domain: A list of trees sorted by frequency
+;; Codomain: A single huffman tree
+(define huffman-tree
+  (lambda (hsort)
+    (cond ((null? (cdr hsort))  (car hsort))
+          (else
+           (huffman-tree
+            (insert-sort (list (list 'nil (+ (cadaar hsort) (cadaar (cdr hsort))))
+                               (car hsort)
+                               (cadr hsort))
+                         (cddr hsort)))))))
+
+;; Domain: A sorted list of trees (by frequency) and a new tree
+;; Codomain: The sorted list with the new tree in it
+(define insert-sort
+  (lambda (elem L)
+    (cond ((null? L) (list elem))
+          ((> (cadaar L) (cadar elem)) (cons elem L))
+          (else
+           (cons (car L) (insert-sort elem (cdr L)))))))
+
+;; Domain: A binary tree in the way '(Root LeftChild RightChild)
+;; Codomain: A boolean, #t if it is a leaf, #f otherwise
+(define leaf?
+  (lambda (node)
+    (and (null? (cadr node)) (null? (cadr node)))))
+
+;; Domain: A tree
+;; Codomain: A list with the route to the leaves of the tree
+(define routes-to-leaves
+  (lambda (tree)
+    (map (lambda (lroutes)
+           (list (car lroutes) (reverse (cdr lroutes))))
+         (routes-to-leaves-aux tree '()))))
+
+
+(define routes-to-leaves-aux
+  (lambda (tree route)
+    (cond ((leaf? tree) (list (cons (caar tree) route)))
+          (else
+           (append (routes-to-leaves-aux (cadr tree) (cons 1 route))
+                   (routes-to-leaves-aux (caddr tree) (cons 0 route)))))))
+
