@@ -665,7 +665,7 @@
           (else (construct-aux (cdr lis) (insert-bst bst (car lis)))))))
 
 ;;p58
-
+;; TO-DO: fix this (estaba en reunion y no lo he ni probado)
 ;; Domain:   A real number
 ;; Codomain: The logarithm in base 2
 (define log2
