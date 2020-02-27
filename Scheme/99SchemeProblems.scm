@@ -158,11 +158,12 @@
 ;; p13
 (define encode-direct
   (lambda (l)
-    (encode-direct-aux l (car l) 1)))
+    (encode-direct-aux (cdr l) (car l) 1)))
 
 (define encode-direct-aux
   (lambda (l elem cant)
-    (cond ((null? l) (list (list cant elem)))
+    (cond ((and (null? l) (= 1 cant)) (list elem))
+          ((null? l) (list (list cant elem)))
           ((equal? (car l) elem) (encode-direct-aux (cdr l) elem (+ cant 1)))
           ((= cant 1) (cons elem (encode-direct-aux (cdr l) (car l)  1)))
           (else (cons (list cant elem) (encode-direct-aux (cdr l) (car l)  1))))))
@@ -595,7 +596,9 @@
            (and (binary-tree? (cadr l))
                 (binary-tree? (caddr l)))))))
 
-;; P55
+;; p55 (alternative version for exactly (2**n)-1 nodes)
+;; Domain: A natural number
+;; Codomain: A perfect balanced tree with n height
 (define perfect-balanced-tree
   (lambda (n)
     (cond ((zero? n) '())
@@ -603,12 +606,75 @@
            (let ((hijo (perfect-balanced-tree (- n 1))))
              (list 'x hijo hijo))))))
 
+;; p55 (All balanced trees of heigth n) To Achieve the problem specification, pow set must be filtered... the idea is the same)
+;; Domain: A natural number n
+;; Codomain: All balanced trees of height n in a list
 (define balanced-trees
   (lambda (n)
-    (map push-sons
-         (repeat (- (expt 2 n) 1) (perfect-balanced-tree (- n 1)))
-         (cdr (gray-code n)))))
+    (map balanced-trees-aux (cdr (pow-set '(0 1) (expt 2 n))))))
 
+(define balanced-trees-aux
+  (lambda (combo)
+    (cond ((null? (cdr combo))
+           (cond ((zero? (car combo)) (list ))
+                 (else (list 'x '() '()))))
+          (else
+           (let ((part (split combo (quotient (length combo) 2))))
+             (list 'x
+                   (balanced-trees-aux (car part))
+                   (balanced-trees-aux (cadr part))))))))
 
-;; TO-DO push-sons
-         
+;; p56
+;; Domain: 2 subtrees: right and left
+;; Codomain: A boolean, #t if right is mirroring left by it's structure, #f otherwise
+(define mirror?
+  (lambda (right left)
+    (cond ((and (null? right) (null? left)) #t)
+          ((or (null? right) (null? left)) #f)
+          (else (and (mirror? (cadr right) (caddr left))
+                     (mirror? (caddr right) (cadr left)))))))
+
+;; Domain: A binary tree
+;; Codomain: A boolean, #t if the right-son is mirroring left-son, #f otherwise
+(define symetric-bt?
+  (lambda (tree)
+    (mirror? (cadr tree) (caddr tree))))
+
+;; p57  Binary search tree (bst)
+;; Domain: A BST of numbers and an element (also a number)
+;; Codomain: The BST with the element inserted
+(define insert-bst
+  (lambda (tree elem)
+    (cond ((null? tree) (list elem '()'()))
+          ((< elem (car tree)) (list (car tree)
+                                     (insert-bst (cadr tree) elem)
+                                     (caddr tree)))
+          (else (list (car tree)
+                      (cadr tree)
+                      (insert-bst (caddr tree) elem))))))
+
+;; Domain: A list of numbers
+;; Codomain: A BST with the elements of the list inserted in the list's order
+(define construct
+  (lambda (lis)
+    (construct-aux lis '())))
+
+(define construct-aux
+  (lambda (lis bst)
+    (cond ((null? lis) bst)
+          (else (construct-aux (cdr lis) (insert-bst bst (car lis)))))))
+
+;;p58
+
+;; Domain:   A real number
+;; Codomain: The logarithm in base 2
+(define log2
+  (lambda (n)
+    (/ (log n) (log 2))))
+
+;; Domain: A natural number n
+;; Codomain: The balanced trees with n nodes
+(define balanced-trees-with-n-nodes
+  (lambda (n)
+    (map balanced-trees-aux (filter (pow-set '(0 1) (expt 2 (+ 1 (round (log2 (+ n 1))))))
+                                    (lambda (comb) (= (- n (expt 2 (round (log2 (+ n 1))))) (apply + comb)))))))
