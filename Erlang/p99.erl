@@ -1,9 +1,9 @@
-%% Solutions to 99 lisp problems in Scheme
+%% Solutions to 99 prolog problems in Erlang
 %% All solutions assume that the domain is correct, there are no entry-validations
 %% Anyway, in Erlang, is very easy to do so, with warnings or exceptions
 %% Check specification on github.com/eddituss/99Problems
 
-%% For a quick search of an specific solution you may find %% pxx  where xx is the problem's number
+%% For a quick search of an specific solution you may look for %% pxx  where xx is  problem's number
 
 %% File made for academic purposes, for teaching syntax to university students or general public
 %% For more information you may contact the author Eddy Ramírez at edramirez@tec.ac.cr
