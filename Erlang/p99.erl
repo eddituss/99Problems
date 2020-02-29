@@ -186,28 +186,15 @@ mod(A,B)-> (B+(A rem B)) rem B.
 
 %% Domain: A list and an integer number rot
 %% Codomain: A rot rotation of the list (negatives to left)
-%% rotate
-  %%(l rot)
+% using guard for saving the usage of another function
+rotate(L,R)when R>length(L)->rotate(L,mod(R,length(L));  
+rotate(L,R)->{Front,End}=split(L,R), End++Front.
 
-
-
-%% rotate-aux
-  %%(l mod-rot)
-
-
-%% Domain: A list with a pair of lists in the form (l1 l2)
-%% Codomain: The list returned appendded in the way (l2 l1)
-%% reorder-and-append
-  %%(splitted)
-
-          
-                                                    
 %% Domain:  A list and a natural number less than the length of the list
 %% Codomain: The list without the k-th element
 %% p20
-%% remove-at
-  %%(l k)
-
+removeAt([_H|T],0)->T;
+removeAt([H|T],N)->[H|removeAt(T,N-1)].
 
 %% Domain: A list and a natural number less than the length of the list and an element
 %% Codomain: The list with the k-th element inserted
