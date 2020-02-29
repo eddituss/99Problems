@@ -187,7 +187,7 @@ mod(A,B)-> (B+(A rem B)) rem B.
 %% Domain: A list and an integer number rot
 %% Codomain: A rot rotation of the list (negatives to left)
 % using guard for saving the usage of another function
-rotate(L,R)when R>length(L)->rotate(L,mod(R,length(L));  
+rotate(L,R)when R>length(L)->rotate(L,mod(R,length(L)));  
 rotate(L,R)->{Front,End}=split(L,R), End++Front.
 
 %% Domain:  A list and a natural number less than the length of the list
