@@ -1,9 +1,15 @@
+-module(p99).
+-compile(export_all). %% VERY BAD PRACTICE, private functions should keep private
+%% In this excercise, I chose to do this, because is more confortable for testing
+%% and because that way, people may look at private functions and see how they work
+%% You should always export only the functions that are public in the module.
+
 %% Solutions to 99 prolog problems in Erlang
 %% All solutions assume that the domain is correct, there are no entry-validations
 %% Anyway, in Erlang, is very easy to do so, with warnings or exceptions
 %% Check specification on github.com/eddituss/99Problems
 
-%% For a quick search of an specific solution you may look for %% pxx  where xx is  problem's number
+%% For a quick search of an specific solution you may look for %% pxx  where xx is  problem's number. If you find any mistakes or a more comfortable way to solve the problem, please contact me!
 
 %% File made for academic purposes, for teaching syntax to university students or general public
 %% For more information you may contact the author Eddy Ramírez at edramirez@tec.ac.cr
@@ -22,7 +28,7 @@ member(E,[_H|T])->member(E,T).
 %% Codomain: The list with only the last element of the input
 %% p01
 last([X])->[X];
-last([H|T])->last(T).
+last([_H|T])->last(T).
 
 %% Domain: A list with at least 2 elements
 %% Codomain: A list with the last 2 elements
@@ -34,7 +40,7 @@ butlast([_H|T])->butlast(T).
 %% Codomain: The element at the n-th position (starting at zero)
 %% p03
 elementAt(0,[H|_T])->H;
-elementAt(N,[H|T])->elementAt(N-1,T).
+elementAt(N,[_H|T])->elementAt(N-1,T).
 
 %% Domain: A list
 %% Codomain: A number with the length of the input
@@ -67,7 +73,7 @@ palindrome(L)-> L =:= lists:reverse(L).
 %% p07
 flatten([])->[];
 flatten([[H|T]|TT])->flatten([H|T])++flatten(TT);
-flatten([[]|T)->flatten(T);
+flatten([[]|T])->flatten(T);
 flatten([H|T])->[H|flatten(T)].
 
 %% Domain: A list
@@ -89,99 +95,94 @@ pack([H|T],Pack)->[Pack|pack(T,[H])];
 pack([],Pack)->[Pack].
 
 %% Domain: A list
-%% Codomain: A list with the cardinality of the consecutive equal elements
+%% Codomain: A list with tuples, each one with the cardinality of the consecutive equal elements in the list
 %% p10
-%% length-encoding
-  %%(l)
-
-
+lengthEncoding(L)->[{X,length(X)}||X<-pack(L)].
+  
 %% Domain: A list
-%% Codomain: A list with the cardinality of the consecutive equal elements
+%% Codomain: A list with tuples, each one with the cardinality of the consecutive equal elements in the list
 %% p11
-%% length-encoding-1
-  %%(l)
+lengthEncodingMinus1(L)->[tuple(X)||X<-pack(L)].
+
+%% Domain: A pack
+%% Codomain: A tuple if the pack is larger than 1, the element otherwise
+tuple([X])->X;
+tuple([H|T])->{H,1+length(T)}.
 
 
 %% p12
 %% Domain:  A natural number and an element
 %% Codomain: A list of length cant, filled with cant elements
-%% repeat
-  %%(cant elem)
+repeat(0,_E)->[];
+repeat(N,E)->[E|repeat(N-1,E)].
 
-%% Domain:   A list with lists of the form (cant elem) or just elem (equivalent to (1 elem))
+%% Domain:   A list with tuples of the form {elem,cant} or just elem (equivalent to (1 elem))
 %% Codomain: A list with all the elements unpacked
-%% decode
-  %%(encode)
-
+decode([{E,Cant}|L])->repeat(Cant,E)++decode(L);
+decode([E|L])->[E|decode(L)];
+decode([])->[].
 
 %% Domain: A list
 %% Codomain: A list with the cardinality of the consecutive equal elements 
 %% p13
-%% encode-direct
-  %%(l)
+lengthEncodingDirect([])->[];
+lengthEncodingDirect([H|T])->lengthEncodingDirect(T,H,1).
 
+lengthEncodingDirect([H|T],H,N)->lengthEncodingDirect(T,H,N+1);
+lengthEncodingDirect([H1|T],H2,1)->[H2|lengthEncodingDirect(T,H1,1)];
+lengthEncodingDirect([H1|T],H2,N)->[{H2,N}|lengthEncodingDirect(T,H1,1)];
+lengthEncodingDirect([],H,1)->[H];
+lengthEncodingDirect([],H,N)->[{H,N}].
 
-%% encode-direct-aux
-  %%(l elem cant)
 
 
 %% Domain:  A list
 %% Codomain: The same list with the elements duplied
 %% p14
-%% dupli
-  %%(l)
+dupli([H|T])->[H,H|dupli(T)];
+dupli([])->[].
 
 
 %% Domain: A list and a natural number cant
 %% Codomain: A list with each element replied cant times
 %% p15
-%% repli
-  %%(l cant)
-
+repli([H|T],N)->repeat(N,H)++repli(T,N);
+repli([],_N)->[].
 
 %% Domain:  A list and a natural number n
 %% Codomain: A list with every n-th element dropped off
 %% p16
-%% drop-n
-  %%(l n)
+dropN(L,N)->dropN(L,N,1).
 
-
-
-%% drop-n-aux
-  %%(l n cant)
-
+dropN([_H|T],N,N)->dropN(T,N,1);
+dropN([H|T],N,Cont)->[H|dropN(T,N,Cont+1)];
+dropN([],_N,_Cont)->[].
 
 %% Domain:  A list and a natural number less or equal than the length of the list
-%% Codomain: A list with two lists, the first with the first part elements, the second with the others
+%% Codomain: A tuple with two lists, the first with the first part elements, the second with the others
 %% p17
-%% split
-  %%(l part)
+split(L,N)->split(L,N,[]).
 
-
-%% split-aux
-  %%(l part first)
-
+split(L,0,A)->{lists:reverse(A),L};
+split([H|T],N,A)->split(T,N-1,[H|A]).
 
 %% p18
 %% Domain: A list and a natural number less or equal than the length of the list
 %% Codomain: A list with the first k elements of the list
-%% first-n
-  %%(l k)
-
+firstN(_L,0)->[];
+firstN([H|T],N)->[H|firstN(T,N-1)].
 
 %% Domain: A list and 2 natural numbers b and e, 0<=b<=e<=length of list
 %% Codomain: A sublist from position b to position e
-%% slice
-  %%(l begin end)
+slice(L,0,E)->firstN(L,E);
+slice([_H|T],B,E)->slice(T,B-1,E-1).
 
 
 
 %% p19
 %% Domain:  Two integer numbers
 %% Codomain: The natural number r = a(b) that 0<=r<b
-%% mod  
-  %%(a b)
-
+mod(A,B)-> (B+(A rem B)) rem B.
 
 %% Domain: A list and an integer number rot
 %% Codomain: A rot rotation of the list (negatives to left)
