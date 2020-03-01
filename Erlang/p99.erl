@@ -257,64 +257,55 @@ lsort(LL)->[Y||{_Length,Y}<-lists:sort([{length(X),X}||X<-LL])].
 %% p31
 %% Domain: A natural number
 %% Codomain: A boolean, true is it is prime, false otherwise
-%% prime?
-  %%(n)
+prime(2)->true;
+prime(N)when N rem 2 =:= 0-> false;
+prime(3)->true;
+prime(Odd)->prime(Odd,3).
 
-
-%% prime?-aux
-  %%(n i)
-
-
+prime(N,I)when N rem I =:= 0->false;
+prime(N,I)when I*I > N->true;
+prime(N,I)->prime(N,I+2).
 
 %% p32
 %% Domain: Two natural numbers
 %% Codomain: The number that is the GCD of the input
 %% Using euclid's algorithm ¡Check for the mathemathical proof!
-%% gcd
-  %%(a b)
-
+gcd(A,0)->A;
+gcd(A,B)->gcd(B,mod(A,B)).
 
 
 %% p33
 %% Domain: Two natural numbers
 %% Codomain: A boolean, true if the numbers are coprime, false otherwise
-%% coprimes
-  %%(a b)
-
-
+coprimes(A,B)->1=:=gcd(A,B).
 
 %% p34
 %% Domain: A natural number
 %% Codomain: Euler totient of the number (innefficient)
-%% phi
-  %%(n)
-
-
+totient(N)->length([X||X<-lists:seq(0,N-1), coprimes(N,X)]).
 
 %% p35
 %% Domain: A natural number greater than 1
 %% Codomain: The list of the prime factors of n
-%% prime-factors
-  %%(n)
+primeFactors(1)->[];
+primeFactors(N)when N rem 2=:=0->[2|primeFactors(N div 2)];
+primeFactors(N)->primeFactors(N,3).
 
-
-
-%% prime-factors-aux
-  %%(n i)
-
+primeFactors(1,_I)->[];
+primeFactors(N,I)when I*I > N->[N];
+primeFactors(N,I)when N rem I=:=0->[I|primeFactors(N div I, I)];
+primeFactors(N,I)->primeFactors(N,I+2).
 
 %% p36
 %% Domain: A natural number greater than 1
-%% Codomain: The list of ((a1 b1) (a2 b2) ...) that n = a1**b1* a2**b2 * ...
-%% prime-factors-mult
-  %%(n)
+%% Codomain: The list of [{a1, b1}, {a2, b2} ...] / n = a1**b1* a2**b2 * ...
+factors(N)->[{Prime,1+length(Pack)} || [Prime|Pack]<-pack(primeFactors(N))].
 
 
 %% p37
 %% Domain: A natural number
 %% Codomain: Euler totient of the number (efficient)
-%% euler-totient
-  %%(n)
+%phi(N)->
 
 
 
