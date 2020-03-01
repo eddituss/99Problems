@@ -188,6 +188,7 @@ mod(A,B)-> (B+(A rem B)) rem B.
 %% Codomain: A rot rotation of the list (negatives to left)
 % using guard for saving the usage of another function
 rotate(L,R)when R>length(L)->rotate(L,mod(R,length(L)));  
+rotate(L,R)when 0>R->rotate(L,mod(R,length(L)));  
 rotate(L,R)->{Front,End}=split(L,R), End++Front.
 
 %% Domain:  A list and a natural number less than the length of the list
@@ -199,60 +200,47 @@ removeAt([H|T],N)->[H|removeAt(T,N-1)].
 %% Domain: A list and a natural number less than the length of the list and an element
 %% Codomain: The list with the k-th element inserted
 %% p21
-%% insert-at
-  %%(l elem k)
+insertAt(L,0,Elem)->[Elem|L];
+insertAt([H|T],N,Elem)->[H|insertAt(T,N-1,Elem)].
 
 
 %% Domain: Two integer numbers a and b, with a <= b
 %% Codomain: An ordered list with all the integers between a and b, inclusive
+%% without using lists:seq(B,E)
 %% p22
-%% range
-  %%(begin end)
-
+range(E,E)->[E];
+range(B,E)->[B|range(B+1,E)].
 
 %% Domain: A list and a natural number less or equal the length of the list
 %% Codomain: Cant different elementos randomly selected from the list
 %% p23
-%% rnd-select
-  %%(l cant)
-
-
-%% rnd-select-aux
-  %%(l cant acum pos)
-
-
-
+rndSelect(_L,0)->[];
+rndSelect(L,N)-> Ran = elementAt(L,rand:uniform(length(L))-1),
+                [Ran|rndSelect(L--[Ran], N-1)].
+  
 %% Domain: A two natural numbers, c and t, where c < t
 %% Codomain: A list with c randomly selected numbers from 1 to t.
 %% p24
-%% lotto-select
-  %%(cant tot)
-
+lottoSelect(C,T)->rndSelect(lists:seq(1,T), C).
 
 
 %% Domain:  A list
 %% Codomain: A random permutation of the list
 %% p25
-%% rnd-permu
-  %%(l)
-
+%% Easier to make it in an "Erlang like" way than to reuse code. *this could be used before 
+rndPermu(L)->[Y||{_,Y}<-lists:sort([ {rand:uniform(), X} || X <- L])].
 
 %% Domain: A number k and a list, the number must be less or equal the length of the list
 %% Codomain: The list of all possible combinations of k elements of the list
 %% p26
-%% combination
-  %%(k l)
+combination(_L,0)->[[]];
+combination(L,N)when length(L) =:= N->[L];
+combination([H|T],N)->[[H|Comb] || Comb<-combination(T,N-1)]++combination(T,N).
+
 
 
 
 %% p27
-%% Domain: Two sets A and B
-%% Codomain: The set resulting from A-B
-%% difference
-  %%(a b) 
-
-
-
 %% Domain: An Element and a lists of lists
 %% Codomain: A list with the element inserted in all the sublists (of each list) 
 %% place-in
