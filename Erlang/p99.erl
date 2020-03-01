@@ -97,7 +97,7 @@ pack([],Pack)->[Pack].
 %% Domain: A list
 %% Codomain: A list with tuples, each one with the cardinality of the consecutive equal elements in the list
 %% p10
-lengthEncoding(L)->[{X,length(X)}||X<-pack(L)].
+lengthEncoding(L)->[{H,1+length(T)}||[H|T]<-pack(L)].
   
 %% Domain: A list
 %% Codomain: A list with tuples, each one with the cardinality of the consecutive equal elements in the list
@@ -215,7 +215,7 @@ range(B,E)->[B|range(B+1,E)].
 %% Codomain: Cant different elementos randomly selected from the list
 %% p23
 rndSelect(_L,0)->[];
-rndSelect(L,N)-> Ran = elementAt(L,rand:uniform(length(L))-1),
+rndSelect(L,N)-> Ran = elementAt(rand:uniform(length(L))-1,L),
                 [Ran|rndSelect(L--[Ran], N-1)].
   
 %% Domain: A two natural numbers, c and t, where c < t
@@ -237,52 +237,22 @@ combination(_L,0)->[[]];
 combination(L,N)when length(L) =:= N->[L];
 combination([H|T],N)->[[H|Comb] || Comb<-combination(T,N-1)]++combination(T,N).
 
-
-
-
 %% p27
 %% Domain: An Element and a lists of lists
 %% Codomain: A list with the element inserted in all the sublists (of each list) 
-%% place-in
-  %%(elem ll)
-
+placeIn(E,LL)->[[E|L] || L<-LL].
 
 
 %% Domain: A list of elements and a list of natural numbers,
 %%         the sum of this numbers must be equal to the length of the first list
 %% Codomain: All the possible combinatios of multinomials coefficient
-%% group
-  %%(l distrib)
-
-
-
-%% group-aux
-  %%(l groups)
-
-
+group(_L,[])->[[]];
+group(L,[H|T])->CombsH = combination(L,H), [[C|X]||C<-CombsH,X<-group(L--C,T)].
 
 %% p28
-%% Domain: A list of lists (length-i list-i), a number p, a sublist of length less than p, a sublist of the rest
-%% Codomain: Two lists into a list, one with minors, the other with the rest
-%% sort-split
-  %%(len-list piv minor greater)
-
-
-
 %% Domain:  A list of lists in the form (length-i list-i)
 %% Codomain: A sorted lists of length-i based
-%% Using quick-sort
-%% lsort-aux
-  %%(len-list)
-
-
-
-%% Domain: A lists of lists
-%% Codomain: The lists of lists sorted by the lists' length
-%% lsort
-  %%(ll)
-
-
+lsort(LL)->[Y||{_Length,Y}<-lists:sort([{length(X),X}||X<-LL])].
 
 %% p31
 %% Domain: A natural number
