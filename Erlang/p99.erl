@@ -305,135 +305,101 @@ factors(N)->[{Prime,1+length(Pack)} || [Prime|Pack]<-pack(primeFactors(N))].
 %% p37
 %% Domain: A natural number
 %% Codomain: Euler totient of the number (efficient)
-%phi(N)->
-
+phi(N)->lists:foldl(fun({P,E},Prod)->round(math:pow(P,E-1)*(P-1))*Prod end,1,factors(N)).
 
 
 %% p38
 %% Copy this code, it just measure cpu time of the algorithm
-%% (time (phi 1200000)) (time (euler-totient 1200000))
-%% (time (phi 10090)) (time (euler-totient 10090))
+%% You may program a function using time()
 %% In general:
 %%   the first has a cost of n*sqrt(n) in general
 %%   the second one log(n) for composite numbers (more frequently found) and sqrt(n) for prime numbers
 
 %% p39
 %% Domain:  Two natural numbers a, b that a <= b
-%% Codomain: The ordered list of prime numbers between a and b
-%% prime-range
-  %%(a b)
-
+%% Codomain: The ordered list of prime numbers between a and b  %% inneficient
+primeRange(A,B)->[X||X<-lists:seq(A,B),prime(X)].
 
 %% p40
 %% Domain: A natural even number
 %% Codomain: A list with two primes which sum is n
-%% goldbach
-  %%(n)
+goldbach(4)->{2,2};
+goldbach(N)->goldbach(N,3,prime(N-3)).
 
-
-%% goldbach-aux
-  %%(n p)
-
+goldbach(N,I,true)->{I,N-I};
+goldbach(N,I,_Bool)->goldbach(N,I+2,prime(I+2) and prime(N-(I+2))).
 
 
 %% p41
 %% Domain: Two natural number a,b with a<=b
 %% Codomain: The goldbach pair for every even number between beg and end
-%% goldbach-list
-  %%(beg end)
-
+goldbachList(Beg,End)->
+    [goldbach(Even)|| Even<-[2*X || X<-lists:seq((Beg+1) div 2, End div 2)]].
 
 
 %% p49
 %% Domain: A natural number greater than 1
 %% Codomain: The list of strings of n bits
-%% gray-code
-  %%(n)
+grayCode(N)->powSet([48,49],N).
 
-
-
-%% Domain: A list (as a set) and a number
+%% Domain: A list (as a set, where every element is in a list) and a number
 %% Codomain: Set to the nth power
-%% pow-set
-  %%(set n)
+powSet(Set,Exp)->powSetLog([[X]||X<-Set],Exp).
 
+powSetLog(_S,0)->[[]];
+powSetLog(Set,N)when N rem 2 =:= 0-> R = powSetLog(Set,N div 2), times(R,R);
+powSetLog(Set,N)-> R = powSetLog(Set,N div 2),R2 = times(R,R), times(R2,Set).
 
-
-%% Domain: Multiplies two sets (only when called from pow-set)
+%% Domain: Multiplies two sets 
 %% Codomain: The set multiplied
-%% times
-  %%(s1 s2)
-
-
+times(S1,S2)->[X++Y||X<-S1,Y<-S2].
 
 %% p50
-%% Domain: A multiset of frequencies
+%% Domain: A multiset (of frequencies)
 %% Codomain: A set of huffman codes
-%% Example of entrance '((a 15) (b 1) (c 45) (d 8) (e 16) (f 12) (g 10))
-%% huffman-codes
-  %%(lfre)
-
-
-
-%% Domain: A list of frequencies in the Huffman way
-%% Codomain: The list sorted from the least frequent to the most frequent
-%% huff-sort
-  %%(tree-list)
-
+%% Example of entrance [{a,15},{b,1},{c,45},{d,8},{e,16},{f,12},{g,10}]
+huffmanCodes(LFre)->ProperSort = lists:sort([{{Amount,Sym},{},{}}||{Sym,Amount}<-LFre]),
+       routesToLeaves(huffTree(ProperSort)).
 
 %% Domain: A list of trees sorted by frequency
 %% Codomain: A single huffman tree
-%% huffman-tree
-  %%(hsort)
-
-
-%% Domain: A sorted list of trees (by frequency) and a new tree
-%% Codomain: The sorted list with the new tree in it
-%% insert-sort
-  %%(elem L)
-
-
-%% Domain: A binary tree in the way '(Root LeftChild RightChild)
-%% Codomain: A boolean, true if it is a leaf, false otherwise
-%% leaf?
-  %%(node)
-
+huffTree([X])->X;
+huffTree([{{A,SA},RigA,LefA},{{B,SB},RigB,LefB}|Trees])->
+    huffTree(lists:sort([{{A+B,x},{{A,SA},RigA,LefA},{{B,SB},RigB,LefB}}|Trees])).
 
 %% Domain: A tree
 %% Codomain: A list with the route to the leaves of the tree
-%% routes-to-leaves
-  %%(tree)
+routesToLeaves(Tree)->routesToLeaves(Tree,[]).
 
-
-
-%% routes-to-leaves-aux  %% Routes inverted
-  %%(tree route)
-
-
+routesToLeaves({{_Amount,R},{},{}},L)->[{R,lists:reverse(L)}];
+routesToLeaves({_R,Left,Right},L)->
+    routesToLeaves(Left,[1|L])++routesToLeaves(Right,[0|L]).
 
 %% p54
-%% Domain: A list
-%% Codomain: A boolean true if the input is a binary tree (in scheme), false otherwise
-%% binary-tree?
-  %%(l)
+%% Domain: A tuple 
+%% Codomain: A boolean true if the input is a binary tree (in erlang), false otherwise
+isBinaryTree({})->true;
+isBinaryTree({_Root,Left,Right})->isBinaryTree(Left) and isBinaryTree(Right);
+isBinaryTree(_X)->false.
 
 
-%% p55 (alternative version for exactly (2**n)-1 nodes)
+%% p55 
 %% Domain: A natural number
 %% Codomain: A perfect balanced tree with n height
-%% perfect-balanced-tree
-  %%(n)
+perfectBalancedTree(0)->{};
+perfectBalancedTree(N)->Child = perfectBalancedTree(N-1),{x,Child,Child}.
 
 
 %% p55 (All balanced trees of heigth n) To Achieve the problem specification, pow set must be filtered... the idea is the same)
 %% Domain: A natural number n
 %% Codomain: All balanced trees of height n in a list
-%% balanced-trees
-  %%(n)
+balancedTrees(H)-> [_Zeros|Combos] = powSet([0,1],round(math:pow(2,H))),
+        [makeTree(X)||X<-Combos].
 
 
-%% balanced-trees-aux
-  %%(combo)
+makeTree([0])->{};
+makeTree([1])->{x,{},{}};
+makeTree(L)->{Sub1,Sub2} = split(L,length(L) div 2),{x,makeTree(Sub1),makeTree(Sub2)}.
 
 
 
