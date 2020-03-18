@@ -230,6 +230,8 @@ lottoSelect(C,T)->rndSelect(lists:seq(1,T), C).
 %% Easier to make it in an "Erlang like" way than to reuse code. *this could be used before 
 rndPermu(L)->[Y||{_,Y}<-lists:sort([ {rand:uniform(), X} || X <- L])].
 
+% rndPermu(L)-> rndSelect(L,length(L)).
+
 %% Domain: A number k and a list, the number must be less or equal the length of the list
 %% Codomain: The list of all possible combinations of k elements of the list
 %% p26
@@ -406,37 +408,30 @@ makeTree(L)->{Sub1,Sub2} = split(L,length(L) div 2),{x,makeTree(Sub1),makeTree(S
 %% p56
 %% Domain: 2 subtrees: right and left
 %% Codomain: A boolean, true if right is mirroring left by it's structure, false otherwise
-%% mirror?
-  %%(right left)
+isMirror({},{})->true;
+isMirror({_Root,L,R},{_Root2,L2,R2})->isMirror(L,R2) and isMirror(L2,R);
+isMirror(_X,_Y)->false.
 
 
 
 %% Domain: A binary tree
 %% Codomain: A boolean, true if the right-son is mirroring left-son, false otherwise
-%% symetric-bt?
-  %%(tree)
-
+symetricBT({})->true;
+symetricBT({_R,Left,Right})-> isMirror(Left,Right).
 
 %% p57  Binary search tree (bst)
 %% Domain: A BST of numbers and an element (also a number)
 %% Codomain: The BST with the element inserted
-%% insert-bst
-  %%(tree elem)
-
+insertBST(E,{})->{E,{},{}};
+insertBST(E,{Root,Left,Right})when E<Root -> {Root,insertBST(E,Left), Right};
+insertBST(E,{Root,Left,Right})->{Root,Left,insertBST(E,Right)}.
 
 
 %% Domain: A list of numbers
 %% Codomain: A BST with the elements of the list inserted in the list's order
-%% construct
-  %%(lis)
-
-
-%% construct-aux
-  %%(lis bst)
-
+constructBST(L)->lists:foldl(fun(E,Tree)->insertBST(E,Tree) end, {},L).
 
 %%p58
-%% TO-DO: fix this (estaba en reunion y no lo he ni probado)
 %% Domain:   A real number
 %% Codomain: The logarithm in base 2
 %% log2
