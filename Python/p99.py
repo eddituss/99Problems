@@ -24,5 +24,20 @@ def reverse(L,L2):
     L2.append(L[0])
     return reverse(L[1:], L2)
 
+# Determine if a list is a palindrome
+def p06(L):
+    return L == p05(L)
+
+
+# Flatten a list
+def p07(L):
+    if(L==[]):
+        return []
+    if(type(L[0]) == list):
+        return p07(L[0])+p07(L[1:])
+    return [L[0]]+p07(L[1:])
+
+
+
 
 
